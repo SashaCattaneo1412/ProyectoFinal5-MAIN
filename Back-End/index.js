@@ -1,4 +1,4 @@
-const aioKey = "";
+const aioKey = ""; 
 const url = 'https://io.adafruit.com/api/v2/LaraGenovese/feeds/servo1/data';
 const formData = new FormData();
 const { google } = require('googleapis');
@@ -7,11 +7,16 @@ const cors = require('cors');
 const mysql = require('mysql2');
 require('dotenv').config();
 const util = require('util');
-const credentials = require('./credential.json');
-const jwt = require('jsonwebtoken')
-const cookieParser = require("cookie-parser");
+const credentials = require('./credential.json'); 
+const axios = require ('axios');
+const { Console } = require('console');
 
-const connection = mysql.createConnection(process.env.DATABASE_URL = 'mysql://s5wnjgvmqnjdlo5z92fk:pscale_pw_Gtujy1l6UwB6I2xSHZ2E1hvHvIN95cVif0AsWN6WXEv@aws.connect.psdb.cloud/proyecto?ssl={"rejectUnauthorized":true}');
+const calendar = google.calendar({
+  version: "v3", 
+  auth: process.env.API_KEY,
+})
+
+const connection = mysql.createConnection(process.env.DATABASE_URL='mysql://7fb35rdl8umfibd42z22:pscale_pw_8c4PodAgS02BZstfUKW7vfL76V8UExt0ZkkJQr2wSvN@aws.connect.psdb.cloud/proyecto?ssl={"rejectUnauthorized":true}');
 connection.connect((err) => {
   if (err) {
     console.error('Error al conectarse a la base de datos:', err);
@@ -21,29 +26,77 @@ connection.connect((err) => {
 });
 
 
+
 const app = express();
 app.use(express.json());
 app.use(cors({
   origin: '*'
 }));
-app.use(cookieParser());
-app.use(express.urlencoded({ extended: true }));
-app.set("trust proxy", 1);
 
-const authorization = (req, res, next) => {
-  const token = req.cookies.access_token;
-  if (!token) {
-    return res.sendStatus(403).json({ message: 'You are not logged in' });
+//sETUP
+
+const oauth2Client = new google.auth.OAuth2(
+  process.env.CLIENT_ID,
+  process.env.CLIENT_SECRET,
+  process.env.REDIRECT_URL
+
+)
+const scopes =[
+  'https://www.googleapis.com/auth/calendar'
+];
+
+app.get('/google', (req, res) =>{
+  const url = oauth2Client.generateAuthUrl({
+    access_type: "offline", 
+    scope : scopes
+  })
+
+  res.redirect(url);
+});
+
+//revisar aca la url no me lleva a ningun lado 
+app.get('/google/redirect', async (req, res)=>{
+ res.send("holaaa")
+ const code = req.query.code;
+
+ const {tokens} = await oauth2Client.getAccessToken(code);
+ oauth2Client.setCredentials(tokens);
+ res.send({
+  msg: "logged in"
+ })
+ console.log("hola")
+ 
+
+});
+
+//Cambiar con las variables de la bas de datp
+app.get('/schedule_event', async (req, res)=>{
+
+  console.log(oauth2Client.credentials.access_token);
+  
+  await calendar.events.insert({
+  calendarId: "primary", 
+  auth: oauth2Client,
+
+  requestBody:{
+    summary: "This is a test event", 
+     description: "cambiar por valores ", 
+     start:{
+      dateTime: "",
+      timeZone : "America/Argentina"
+     }, 
+     end:{
+      dateTime: "",
+      timeZone : "America/Argentina"
+     }
   }
-  try {
-    const data = jwt.verify(token, process.env.SECRET_KEY);
-    req.nombreUsuario = data.nombreUsuario;
-    req.mail = data.mail;
-    return next();
-  } catch {
-    return res.sendStatus(403);
-  }
-};
+ })
+
+ res.send({
+  msg: "listooo"
+ })
+})
+
 
 app.get("/status", (req, res) => {
   connection.query('SELECT * FROM boton_prendiendo LIMIT 1', (err, results) => {
@@ -68,19 +121,7 @@ app.post("/registrarse", (req, res) => {
       // Manejar el error
     } else {
       console.log('Actualización exitosa. Filas afectadas:', results.affectedRows);
-      const jwtToken = jwt.sign({ mail }, 'tu_clave_secreta', { expiresIn: '1h' });
-      const options = {
-        httpOnly: true,
-        expires: new Date(Date.now() + 1000 * 60 * 30),
-        withCredentials: true,
-        secure: true,
-        sameSite: "none"
-      };
-  
-      res.cookie("access_token", jwtToken, options)
-      .status(200)
-      .json({ message: true, jwtToken })
-      .send()
+      // Hacer algo con los resultados
     }
   })
   console.log("se corrio el insert")
@@ -119,20 +160,7 @@ app.post("/InicioSesion", (req, res) => {
     } else {
       if (results.length > 0) {
         console.log("los resultados coinciden");
-
-        const jwtToken = jwt.sign({ mailfront }, 'tu_clave_secreta', { expiresIn: '1h' });
-        const options = {
-          httpOnly: true,
-          expires: new Date(Date.now() + 1000 * 60 * 30),
-          withCredentials: true,
-          secure: true,
-          sameSite: "none"
-        };
-    
-        res.cookie("access_token", jwtToken, options)
-        .status(200)
-        .json({ success: true, message: "inicio sesion success" })
-        .send()
+        res.status(200).json({ success: true, message: 'Inicio de sesión exitoso' });
       }
       else {
         console.log("los resultados no coinciden");
@@ -144,13 +172,13 @@ app.post("/InicioSesion", (req, res) => {
 });
 
 
-app.get("/compartimento1", authorization, (req, res) => {
+app.get("/compartimento1", (req, res) => {
   const updateQuery = 'INSERT INTO pastilla SET envase = ?';
   const values = ['1'];
   connection.query(updateQuery, values, (error, results) => {
     if (error) {
       console.error('Error al ejecutar la consulta de actualización:', error);
-      res.status(403).send({ error })
+      res.status(403).send({error})
       // Manejar el error
     } else {
       console.log('Actualización exitosa. Filas afectadas:', results.affectedRows);
@@ -165,7 +193,7 @@ app.get("/compartimento2", (req, res) => {
   connection.query(updateQuery, values, (error, results) => {
     if (error) {
       console.error('Error al ejecutar la consulta de actualización:', error);
-      res.status(403).send({ error })
+      res.status(403).send({error})
       // Manejar el error
     } else {
       console.log('Actualización exitosa. Filas afectadas:', results.affectedRows);
@@ -180,7 +208,7 @@ app.get("/compartimento3", (req, res) => {
   connection.query(updateQuery, values, (error, results) => {
     if (error) {
       console.error('Error al ejecutar la consulta de actualización:', error);
-      res.status(403).send({ error })
+      res.status(403).send({error})
       // Manejar el error
     } else {
       console.log('Actualización exitosa. Filas afectadas:', results.affectedRows);
@@ -195,7 +223,7 @@ app.get("/compartimento4", (req, res) => {
   connection.query(updateQuery, values, (error, results) => {
     if (error) {
       console.error('Error al ejecutar la consulta de actualización:', error);
-      res.status(403).send({ error })
+      res.status(403).send({error})
       // Manejar el error
     } else {
       console.log('Actualización exitosa. Filas afectadas:', results.affectedRows);
@@ -204,28 +232,15 @@ app.get("/compartimento4", (req, res) => {
     }
   })
 });
-app.post("/compartimento1informacion", authorization, async (req, res) => {
+app.post("/compartimento1informacion", async (req, res) => {
   try {
-    const jwtToken = req.jwtToken;
-    console.log(req)
-    jwt.verify(jwtToken, 'tu_clave_secreta', (err, decoded) => {
-      if (err) {
-        console.error('Error al verificar el token:', err);
-        return res.status(401).json({ error: 'Token inválido' });
-      }
-
-    });
-
     const { nombre, horario, fechainicio } = req.body;
     const updateQuery = 'UPDATE pastilla SET nombre = ?, hora = ?, fecha = ? WHERE envase = 1';
 
     const query = util.promisify(connection.query).bind(connection);
     const result = await query(updateQuery, [nombre, horario, fechainicio]);
-
+    
     console.log('Actualización exitosa. Filas afectadas:', result.affectedRows);
-
-    const jwtMailfront = req.jwtMailfront;
-
 
     // Crear evento en Google Calendar después de guardar en la base de datos
     const auth = new google.auth.GoogleAuth({
@@ -234,121 +249,41 @@ app.post("/compartimento1informacion", authorization, async (req, res) => {
     });
 
     const calendar = google.calendar({ version: 'v3', auth });
-    console.log(credentials);
-
-    // Refer to the Node.js quickstart on how to setup the environment:
-    // https://developers.google.com/calendar/quickstart/node
-    // Change the scope to 'https://www.googleapis.com/auth/calendar' and delete any
-    // stored credentials.
 
     const event = {
-      'summary': nombre,
-
-      'description': 'A chance to hear more about Google\'s developer products.',
-      'start': {
-        'dateTime': fechainicio + 'T' + horario,
-        'timeZone': 'America/Argentina/Buenos_Aires',
+      summary: nombre,
+      start: {
+        dateTime: fechainicio + 'T' + horario,
+        timeZone: 'America/Argentina/Buenos_Aires',
       },
-      'end': {
-        'dateTime': fechainicio + 'T' + horario,
-        'timeZone': 'America/Argentina/Buenos_Aires',
-      },
-      'recurrence': [
-        'RRULE:FREQ=DAILY;COUNT=2'
-      ],
-      'attendees': [
-        { 'email': 'lpage@example.com' },
-        { 'email': 'sbrin@example.com' },
-      ],
-      'reminders': {
-        'useDefault': false,
-        'overrides': [
-          { 'method': 'email', 'minutes': 24 * 60 },
-          { 'method': 'popup', 'minutes': 10 },
-        ],
+      end: {
+        dateTime: fechainicio + 'T' + horario,
+        timeZone: 'America/Argentina/Buenos_Aires',
       },
     };
 
-    calendar.events.insert({
-      auth: auth,
+    console.log('Creating Google Calendar event');
+    
+    const response = await calendar.events.insert({
       calendarId: 'primary',
       resource: event,
-    }, function (err, event) {
-      if (err) {
-        console.log('There was an error contacting the Calendar service: ' + err);
-        return;
-      }
-      console.log('Event created: %s', event.htmlLink);
     });
-  }
+    
+    console.log('Response from Google Calendar:', response); // Agregamos este log para imprimir la respuesta obtenida
+    
+    if (response && response.data) {
+      console.log('Evento creado:', response.data);
+      res.status(200).send({ message: 'Evento creado en Google Calendar' });
+    } else {
+      console.error('Error al crear el evento en Google Calendar');
+      res.status(500).send({ error: 'Error al ejecutar la operación' });
+    }
+  } 
   catch (err) {
     console.error('Error:', err);
     res.status(500).send({ error: 'Error al ejecutar la operación' });
   }
 });
-
-/*
-app.post("/compartimento1informacion", (req, res) => {
-  console.log(req.body)
-  const { nombre, horario, fechainicio, } = req.body;
-  const updateQuery = 'UPDATE pastilla SET nombre = ?, hora = ?, fecha = ? WHERE envase = 1';
-  connection.query(updateQuery, [nombre, horario, fechainicio], (error, results) => {
-    if (error) {
-      console.error('Error al ejecutar la consulta de actualización:', error);
-
-    } else {
-      console.log('Actualización exitosa. Filas afectadas:', results.affectedRows);
-    
-    
-      
-      var fechaActual = new Date();
-      motor1 = 0
-      const sql = 'SELECT * FROM pastilla WHERE envase = 1 AND fecha = ? AND hora = ?';
-      connection.query(sql,[fecha,hora],(error, results) =>{
-        if(error){
-          console.error('Error al ejecutar la consulta de actualización:', error);
-        }
-        else{
-          console.log("se agarraron los datos");
-          if (fecha.Date == fechaActual.Date) {
-            if ((hora == fechaActual.getHours &&  hora.getMinutes == fechaActual.getMinutes)) {
-              motor1 = 'ON';
-              console.log("se movio el motor")
-            }
-            else{
-              motor1 = 'OFF';
-            }
-          }
-        }
-      })
-    }
-  })
-});
-*/
-
-
-/*
-var fechaActual = new Date();
-const sql = 'SELECT * FROM pastilla WHERE envase = 1 AND fecha = ? AND hora = ?';
-connection.query(sql,[fecha,hora], (error, results) => {
-    if (error) {
-    console.error('Error al ejecutar la consulta de actualización:', error);
-    // Manejar el error
-  } else {
-    console.log("se agarraron los datos");
-    if (fecha.Date == fechaActual.Date) {
-      if ((hora == fechaActual.getHours &&  hora.getMinutes == fechaActual.getMinutes)) {
-        motor1 = 'ON';
-        console.log("se movio el motor")
-      }
-      else {
-        motor1 = 'OFF';
-      }
-    }
-  }
-});
-*/
-
 /*
 const sql = 'SELECT * FROM pastilla WHERE envase = 1 AND fecha = ? AND hora = ?';
 connection.query(sql,[fecha,hora], (error, results) => {

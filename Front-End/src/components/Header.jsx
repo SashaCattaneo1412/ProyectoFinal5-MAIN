@@ -16,8 +16,9 @@ const Header = () => {
                 <div className="column-2">
                 <Link href="/InicioSesion">
                   <img
+                    height={120}
                     loading="lazy"
-                    srcSet="https://cdn.builder.io/api/v1/image/assets/TEMP/1e2f492b-bc43-43b5-9844-31e9c1f717e4?apiKey=066a951e6da146a787c64f344598a4a3&width=100 100w, https://cdn.builder.io/api/v1/image/assets/TEMP/1e2f492b-bc43-43b5-9844-31e9c1f717e4?apiKey=066a951e6da146a787c64f344598a4a3&width=200 200w, https://cdn.builder.io/api/v1/image/assets/TEMP/1e2f492b-bc43-43b5-9844-31e9c1f717e4?apiKey=066a951e6da146a787c64f344598a4a3&width=400 400w, https://cdn.builder.io/api/v1/image/assets/TEMP/1e2f492b-bc43-43b5-9844-31e9c1f717e4?apiKey=066a951e6da146a787c64f344598a4a3&width=800 800w, https://cdn.builder.io/api/v1/image/assets/TEMP/1e2f492b-bc43-43b5-9844-31e9c1f717e4?apiKey=066a951e6da146a787c64f344598a4a3&width=1200 1200w, https://cdn.builder.io/api/v1/image/assets/TEMP/1e2f492b-bc43-43b5-9844-31e9c1f717e4?apiKey=066a951e6da146a787c64f344598a4a3&width=1600 1600w, https://cdn.builder.io/api/v1/image/assets/TEMP/1e2f492b-bc43-43b5-9844-31e9c1f717e4?apiKey=066a951e6da146a787c64f344598a4a3&width=2000 2000w, https://cdn.builder.io/api/v1/image/assets/TEMP/1e2f492b-bc43-43b5-9844-31e9c1f717e4?apiKey=066a951e6da146a787c64f344598a4a3&"
+                    srcSet="https://cdn.builder.io/api/v1/image/assets/TEMP/1e2f492b-bc43-43b5-9844-31e9c1f717e4?apiKey=066a951e6da146a787c64f344598a4a3 , https://cdn.builder.io/api/v1/image/assets/TEMP/1e2f492b-bc43-43b5-9844-31e9c1f717e4?apiKey=066a951e6da146a787c64f344598a4a3 , https://cdn.builder.io/api/v1/image/assets/TEMP/1e2f492b-bc43-43b5-9844-31e9c1f717e4?apiKey=066a951e6da146a787c64f344598a4a3, https://cdn.builder.io/api/v1/image/assets/TEMP/1e2f492b-bc43-43b5-9844-31e9c1f717e4?apiKey=066a951e6da146a787c64f344598a4a3, https://cdn.builder.io/api/v1/image/assets/TEMP/1e2f492b-bc43-43b5-9844-31e9c1f717e4?apiKey=066a951e6da146a787c64f344598a4a3, https://cdn.builder.io/api/v1/image/assets/TEMP/1e2f492b-bc43-43b5-9844-31e9c1f717e4?apiKey=066a951e6da146a787c64f344598a4a3, https://cdn.builder.io/api/v1/image/assets/TEMP/1e2f492b-bc43-43b5-9844-31e9c1f717e4?apiKey=066a951e6da146a787c64f344598a4a3, https://cdn.builder.io/api/v1/image/assets/TEMP/1e2f492b-bc43-43b5-9844-31e9c1f717e4?apiKey=066a951e6da146a787c64f344598a4a3"
                     className="img"
                   />
                   </Link>
@@ -54,8 +55,9 @@ const Header = () => {
                 <div className="column-6">
                 <Link href="/Usuario">
                   <img
+                    height={100}
                     loading="lazy"
-                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/af3ceae4-fa72-428e-9439-b61faf6b62b7?apiKey=066a951e6da146a787c64f344598a4a3&"
+                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/af3ceae4-fa72-428e-9439-b61faf6b62b7?apiKey=066a951e6da146a787c64f344598a4a3"
                     className="img-2"
                   />
                   </Link>
@@ -83,7 +85,6 @@ const Header = () => {
         .column {
           display: flex;
           flex-direction: column;
-          line-height: normal;
           width: 53%;
           margin-left: 0px;
         }
@@ -93,7 +94,7 @@ const Header = () => {
           }
         }
         .div-3 {
-          margin-top: 17px;
+          margin-top: 40px;
           padding-right: 21px;
         }
         @media (max-width: 991px) {
@@ -117,8 +118,7 @@ const Header = () => {
         .column-2 {
           display: flex;
           flex-direction: column;
-          line-height: normal;
-          width: 34%;
+          
           margin-left: 0px;
         }
         @media (max-width: 991px) {
@@ -130,7 +130,7 @@ const Header = () => {
           aspect-ratio: 1.08;
           object-fit: contain;
           object-position: center;
-          width: 184px;
+          width: 150px;
           overflow: hidden;
           max-width: 100%;
           flex-grow: 1;
@@ -143,9 +143,9 @@ const Header = () => {
         .column-3 {
           display: flex;
           flex-direction: column;
-          line-height: normal;
           width: 66%;
           margin-left: 20px;
+         
         }
         @media (max-width: 991px) {
           .column-3 {
@@ -161,7 +161,6 @@ const Header = () => {
           background-color: #e6ddd6;
           width: 80%;
           margin: auto;
-          padding: 12px 20px;
           font: 900 30px/47.5px Lexend, -apple-system, Roboto, Helvetica,
             sans-serif
             ;
@@ -176,7 +175,6 @@ const Header = () => {
         .column-4 {
           display: flex;
           flex-direction: column;
-          line-height: normal;
           width: 47%;
           margin-left: 20px;
         }
@@ -209,7 +207,6 @@ const Header = () => {
         .column-5 {
           display: flex;
           flex-direction: column;
-          line-height: normal;
           width: 76%;
           margin-left: 0px;
         }
@@ -227,7 +224,6 @@ const Header = () => {
           background-color: #e6ddd6;
           width: 80%;
           margin: auto;
-          padding: 12px 20px;
           font: 900 30px/47.5px Lexend, -apple-system, Roboto, Helvetica,
             sans-serif;
         }
@@ -240,7 +236,6 @@ const Header = () => {
         .column-6 {
           display: flex;
           flex-direction: column;
-          line-height: normal;
           width: 24%;
           margin-left: 20px;
         }
@@ -253,7 +248,7 @@ const Header = () => {
           aspect-ratio: 1;
           object-fit: contain;
           object-position: center;
-          width: 117px;
+          width: 100px;
           overflow: hidden;
           max-width: 100%;
         }

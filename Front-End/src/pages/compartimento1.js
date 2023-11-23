@@ -57,7 +57,7 @@ const compartimiento1 = () => {
     <div>
       <Header></Header> <br />
       <div className={style.img}>
-        <Image width={400} height={750} src="/Image/compartimiento1.png" alt="Imagen comp1" />
+        <Image width={300} padding-right={10} padding-top={30} height={600} src="/Image/compartimiento1.png" alt="Imagen comp1" />
       </div>
       <CenteredContainer>
         <form className="form-container">
